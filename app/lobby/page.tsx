@@ -93,7 +93,7 @@ export default function LobbyPage() {
               <h1 className="mb-4 text-white text-3xl font-bold">Ready to Meet Someone?</h1>
               <p className="text-white/60 mb-10 max-w-md mx-auto">
                 Click below to be matched with a stranger for a 10-minute conversation.
-                You&apos;ll be connected instantly.
+                You will be connected instantly.
               </p>
               <Button
                 onClick={handleFindPartner}
