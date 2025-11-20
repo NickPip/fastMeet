@@ -145,7 +145,7 @@ export default function LobbyPage() {
           </div>
           <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 shadow-lg text-center">
             <div className="text-white mb-2 text-2xl">🔒</div>
-            <p className="text-white/60 text-sm">Completely anonymous & private</p>
+            <p className="text-white/60 text-sm">Completely anonymous &amp; private</p>
           </div>
         </div>
       </div>
