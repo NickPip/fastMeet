@@ -32,8 +32,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "queued", sessionId });
   } catch (error) {
     console.error("Error joining queue:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to join queue" },
+      { 
+        error: "Failed to join queue",
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }
