@@ -1,6 +1,9 @@
 {
-  "buildCommand": "prisma generate && next build --no-lint",
+  "buildCommand": "prisma generate && ESLINT_NO_DEV_ERRORS=true next build",
   "installCommand": "yarn install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "env": {
+    "ESLINT_NO_DEV_ERRORS": "true"
+  }
 }
 
