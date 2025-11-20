@@ -1,4 +1,5 @@
 {
+  "buildCommand": "prisma generateee && SKIP_ENV_VALIDATION=true next build",
   "installCommand": "yarn install",
   "framework": "nextjs"
 }
