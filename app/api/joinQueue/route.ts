@@ -97,11 +97,30 @@ export async function POST(request: NextRequest) {
         );
       }
       
+      // Check for table/relation errors (migrations not run)
+      if (
+        errorMessage.includes("does not exist") ||
+        errorMessage.includes("relation") ||
+        errorMessage.includes("P2021") ||
+        errorMessage.includes("P2003") ||
+        errorMessage.includes("table")
+      ) {
+        return NextResponse.json(
+          { 
+            error: "Database schema error",
+            message: "Database tables not found. Please run Prisma migrations.",
+            hint: "This usually means migrations haven't been run yet."
+          },
+          { status: 500 }
+        );
+      }
+      
       return NextResponse.json(
         { 
           error: "Failed to join queue",
           message: errorMessage,
-          // Only show details in development
+          errorName: errorName,
+          // Show error name in production for debugging
           ...(process.env.NODE_ENV === "development" && {
             details: error.stack
           })

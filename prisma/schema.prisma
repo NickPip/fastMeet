@@ -18,8 +18,8 @@ model QueueEntry {
 
 model Room {
   id        String   @id @default(cuid())
-  userA     String   // sessionId A
-  userB     String   // sessionId B
+  userA     String // sessionId A
+  userB     String // sessionId B
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
