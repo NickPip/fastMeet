@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && SKIP_ENV_VALIDATION=true next build",
+  "buildCommand": "prisma generate && prisma migrate deploy && SKIP_ENV_VALIDATION=true next build",
   "installCommand": "yarn install",
   "framework": "nextjs"
 }

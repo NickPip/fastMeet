@@ -3,19 +3,34 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if DATABASE_URL is configured
-    if (!process.env.DATABASE_URL) {
-      console.error("DATABASE_URL is not set");
+    // Check if database URL is configured (supports Vercel Postgres and standard DATABASE_URL)
+    const databaseUrl = 
+      process.env.POSTGRES_PRISMA_URL || 
+      process.env.POSTGRES_URL || 
+      process.env.DATABASE_URL;
+    
+    if (!databaseUrl) {
+      console.error("Database URL is not set");
       return NextResponse.json(
         { 
           error: "Database configuration error",
-          message: "DATABASE_URL environment variable is not configured"
+          message: "Database URL environment variable is not configured. Please set POSTGRES_PRISMA_URL, POSTGRES_URL, or DATABASE_URL."
         },
         { status: 500 }
       );
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return NextResponse.json(
+        { error: "Invalid request body", message: "Request body must be valid JSON" },
+        { status: 400 }
+      );
+    }
+    
     const { sessionId } = body;
 
     if (!sessionId) {
@@ -44,21 +59,61 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "queued", sessionId });
   } catch (error) {
     console.error("Error joining queue:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     
-    // Log full error for debugging
+    // Handle Prisma connection errors specifically
     if (error instanceof Error) {
+      const errorMessage = error.message;
+      const errorName = error.name;
+      
+      // Log full error for debugging
+      console.error("Error name:", errorName);
+      console.error("Error message:", errorMessage);
       console.error("Error stack:", error.stack);
+      
+      // Check for common database connection errors
+      if (
+        errorMessage.includes("DATABASE_URL") ||
+        errorMessage.includes("Can't reach database server") ||
+        errorMessage.includes("P1001") ||
+        errorMessage.includes("connection")
+      ) {
+        return NextResponse.json(
+          { 
+            error: "Database connection error",
+            message: "Unable to connect to database. Please check your database configuration."
+          },
+          { status: 500 }
+        );
+      }
+      
+      // Check for Prisma client errors
+      if (errorName === "PrismaClientInitializationError" || errorMessage.includes("Prisma")) {
+        return NextResponse.json(
+          { 
+            error: "Database initialization error",
+            message: "Database client failed to initialize. Please check your database configuration."
+          },
+          { status: 500 }
+        );
+      }
+      
+      return NextResponse.json(
+        { 
+          error: "Failed to join queue",
+          message: errorMessage,
+          // Only show details in development
+          ...(process.env.NODE_ENV === "development" && {
+            details: error.stack
+          })
+        },
+        { status: 500 }
+      );
     }
     
     return NextResponse.json(
       { 
         error: "Failed to join queue",
-        message: errorMessage,
-        // Only show details in development
-        ...(process.env.NODE_ENV === "development" && {
-          details: error instanceof Error ? error.stack : String(error)
-        })
+        message: "An unknown error occurred"
       },
       { status: 500 }
     );

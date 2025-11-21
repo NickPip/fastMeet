@@ -12,6 +12,8 @@ yarn install
 ```
 
 2. Set up environment variables:
+
+**For Local Development:**
 Create a `.env` file with:
 ```
 DATABASE_URL="your-database-url"
@@ -22,6 +24,14 @@ PUSHER_CLUSTER="your-pusher-cluster"
 NEXT_PUBLIC_PUSHER_KEY="your-pusher-key"
 NEXT_PUBLIC_PUSHER_CLUSTER="your-pusher-cluster"
 ```
+
+**For Vercel Production (Recommended):**
+The app supports Vercel Postgres automatically. When you create a Vercel Postgres database in your Vercel project, it will automatically set:
+- `POSTGRES_PRISMA_URL` (used by Prisma)
+- `POSTGRES_URL` (fallback)
+- `POSTGRES_URL_NON_POOLING` (for migrations)
+
+The app will automatically use these environment variables if available.
 
 3. Set up Prisma:
 ```bash
